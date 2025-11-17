@@ -1,8 +1,8 @@
 # README – Task 2
 
 ## Exploratory Analysis on User Engagement, Revenue, and Behavioral Trends
-Note: Due to GitHub’s file size limits, the enriched dataset and the full Power BI dashboard are hosted on Google Drive. You can access them here:
-[Google Drive Folder](https://drive.google.com/drive/folders/14D0qEPHDG6Vh_eQL1T2wvSoKbSyg5xGR?usp=drive_link)
+**Important note:** Due to GitHub’s file size limits, the enriched dataset and the full Power BI dashboard are hosted on Google Drive. You can access them here:
+**[Google Drive Folder](https://drive.google.com/drive/folders/14D0qEPHDG6Vh_eQL1T2wvSoKbSyg5xGR?usp=drive_link)**
 
 ---
 
