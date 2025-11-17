@@ -1,37 +1,38 @@
 # README – Task 2
 
 ## Exploratory Analysis on User Engagement, Revenue, and Behavioral Trends
-*(Long-form, detailed, fully professional yet simple language)*
+Note: Due to GitHub’s file size limits, the enriched dataset and the full Power BI dashboard are hosted on Google Drive. You can access them here:
+[Google Drive Folder](https://drive.google.com/drive/folders/14D0qEPHDG6Vh_eQL1T2wvSoKbSyg5xGR?usp=drive_link)
 
 ---
 
 ## 1. Purpose of Task 2
 
-The goal of this analysis was to understand how players behave in the early days of the game and how their engagement connects to long-term retention and revenue.
+This part of the case is about understanding how players behave in the first days of the game and how this behavior links to engagement and revenue later on.
 
-I wanted to go beyond simple aggregates, so I segmented users, tracked daily activity patterns, measured session fatigue, and compared revenue contributions across different segments and countries.
+I grouped players by simple activity levels, checked how their playtime changed over time, and compared which groups brought in more value.
 
-To do this, I used:
+The workflow was:
 
-- SQL views for modular data transformation  
-- Power BI dashboards for visual exploration  
-- Python for some quick checks and consistency validation  
+- **Python** — clean the data and run basic checks  
+- **SQL** — create views for segments, activity, and revenue  
+- **Power BI** — visualize the results and show the main patterns  
 
-My focus was to build a structure that could easily scale into deeper cohort or funnel analysis.
+The goal was to build a clear and easy-to-follow structure that explains player behavior without using complex methods.
 
 ---
 
 ## 2. Dataset Overview
 
-The dataset contains daily summaries for each player.  
-Fields include platform, country, gameplay counts, session durations, install dates, and monetization metrics (IAP + Ads).
+The dataset includes daily records for each player.  
+It covers platform, country, number of sessions, playtime, install dates, and revenue data from both IAP and ads.
 
-This structure allowed me to:
+With this structure, I was able to:
 
-- Group users by early behaviors  
-- Follow their session trends  
-- Analyze retention patterns  
-- Understand revenue contribution by behavior segment and geography  
+- Group players based on early activity  
+- Track how their sessions changed over time  
+- Look at basic retention patterns  
+- Compare revenue across segments and countries  
 
 ---
 
@@ -58,175 +59,118 @@ Below is the folder structure I used for Task 2:
         firstpage.png
         secondpage.png
         thirdpage.png
+        revenuebysegment.png
+        heatmap.png
+        avgsessionduration.png
+        sessiondistribution.png
 ```
 
 ---
 
 ## 4. Python
 
-Python was the first layer of the analysis pipeline.  
-I used it for **cleaning**, **feature engineering**, and **quick diagnostic visuals** before creating SQL views and Power BI dashboards.
-
-**Directories:**
-
-```markdown
-/python
-    - 01_data_cleaning.ipynb
-    - 02_feature_engineering.ipynb
-    - 03_exploratory_analysis.ipynb
-
-/images
-    - revenuebysegment.png
-    - heatmap.png
-    - avgsessionduration.png
-    - sessiondistribution.png
-```
+Python was the first step of the workflow.  
+I used it to clean the data, create simple features, and check the main patterns before moving into SQL and Power BI.
 
 ---
 
-### 1. Data Cleaning
+### 1. Data Cleaning  
+**Notebook:** `01_data_cleaning.ipynb`
 
-**Notebook:** `01_data_cleaning.ipynb`  
-**Purpose:** Make the raw dataset consistent and usable.
+- Fixed column types  
+- Replaced missing revenue values  
+- Removed rows with impossible session data  
+- Exported a clean dataset for SQL
 
-- Fixed column types (dates, ints, floats)  
-- Replaced missing revenue with zero  
-- Removed invalid rows (negative durations, 0 sessions + long duration)  
-- Exported a clean dataset for SQL  
-
-**Visual Check:**  
+**Quick Check:**  
 ![Session Distribution](./images/sessiondistribution.png)
-First-day session counts are extremely skewed (most players play 1–2 sessions).  
-This confirmed that segmentation was necessary.
+
+Most players only play 1–2 sessions on Day 1, which shows why segmentation was needed.
 
 ---
 
-### 2. Feature Engineering
+### 2. Feature Engineering  
+**Notebook:** `02_feature_engineering.ipynb`
 
-**Notebook:** `02_feature_engineering.ipynb`  
-**Purpose:** Create fields needed for segmentation and revenue analysis.
+Main fields created:
 
-**Key engineered fields:**
+- `engagement_segment`  
+- `total_revenue`  
+- Day-1 activity flags  
+- Average duration per session  
 
-- `engagement_segment` (low / mid / high)  
-- `total_revenue` (iap + ads)  
-- Day-1 flags  
-- Avg duration per session  
-
-**Visual Check:**  
+**Quick Check:**  
 ![Revenue By Segment](./images/revenuebysegment.png)
-High segment has the strongest IAP revenue per user.  
-Mid is moderate; low is very low.  
-This validated the segmentation logic.
+
+High-engagement players bring the most revenue per user.  
+This supported the segment structure used later.
 
 ---
 
-### 3. Early Exploratory Analysis
+### 3. Early Exploratory Analysis  
+**Notebook:** `03_exploratory_analysis.ipynb`
 
-**Notebook:** `03_exploratory_analysis.ipynb`  
-**Purpose:** Validate behavioral patterns before Power BI dashboards.
+**a) Session Fatigue**  
+![Average Session Duration](./images/avgsessionduration.png)  
+Session duration drops over time for all segments. High segment stays the most stable.
 
-**Visuals Used:**
-
-#### a) Session Fatigue  
-![Average Session Duration](./images/avgsessionduration.png)
-Session duration decreases over time for all segments.  
-High segment remains most stable.
-
-#### b) Country Revenue Distribution  
-![Heatmap](./images/heatmap.png)
-A few countries dominate revenue; long tail contributes very little.  
-Matches SQL country revenue view.
+**b) Country Revenue**  
+![Heatmap](./images/heatmap.png)  
+A small group of countries generates most revenue.
 
 ---
 
-### 4. Why Python Was Necessary
+### 4. Why Python Was Used
 
-- Ensured data quality before SQL transformations  
-- Validated segment rules  
-- Confirmed session fatigue and monetization patterns  
-- Produced fast visuals that guided the Power BI dashboard design  
+- To prepare a clean dataset for SQL  
+- To test segment logic early  
+- To confirm basic behavior patterns  
+- To guide how the Power BI dashboards should be structured
 
-Python → SQL → Power BI flow kept the analysis structured and reproducible.
+This kept the whole analysis clear and easy to maintain.
 
 ---
 
 ## 5. SQL Layer
+
+The SQL layer groups the main behaviors and revenue patterns into simple views.  
+Each view focuses on one question and keeps the analysis easy to follow.
+
 ---
 
 ### 5.1 vw_country_revenue.sql
-
-**Purpose:**  
-Shows the revenue contribution of each country.
-
-**Why it matters:**  
-This reveals regional disparities and highlights where high-value users are located.
-
-**Columns:** total IAP, total Ads, combined revenue.  
-This view is the backbone of my geographical analysis.
+Shows how much revenue each country brings in (IAP + Ads).  
+Useful for seeing which regions contribute the most.
 
 ---
 
 ### 5.2 vw_user_segments.sql
-
-**Purpose:**  
-Assign each user into an engagement segment based on first-day session counts.
-
-**Why it matters:**  
-Early engagement is one of the strongest predictors of lifetime value.  
-This segmentation allows clean comparisons across behavior groups.
+Places each player into a low, mid, or high engagement group based on their Day-1 activity.  
+This creates the foundation for all segment-based comparisons.
 
 ---
 
 ### 5.3 vw_first_day_conversion.sql
-
-**Purpose:**  
-Connect first-day engagement to lifetime revenue.
-
-**Why it matters:**  
-I wanted to see whether players who play more on Day 1 also tend to pay more later.  
-This view helped me build the foundation for conversion-related insights.
+Checks whether players who are active on Day 1 also spend more later on.  
+Helps link early behavior to long-term revenue.
 
 ---
 
 ### 5.4 vw_daily_activity_by_segment.sql
-
-**Purpose:**  
-Track how each engagement segment behaves day by day.
-
-**It includes:**
-
-- DAU  
-- Total sessions  
-- Total session duration  
-- Match starts / ends  
-- Victory / defeat counts  
-
-**Why it matters:**  
-This view allows examining not just total revenue but how their activity evolves over time.  
-It feeds directly into session fatigue and retention insights.
+Tracks day-by-day activity for each segment, including sessions, playtime, and match counts.  
+Shows how each group behaves over time, not just on the first day.
 
 ---
 
 ### 5.5 vw_session_fatigue_analysis.sql
-
-**Purpose:**  
-Measure the decay of average session duration over time.
-
-**Why it matters:**  
-Every mobile game experiences session fatigue.  
-Understanding when players begin to drop off helps in pacing content and difficulty.
+Measures how average session duration declines across days.  
+Gives a clear view of session fatigue for each segment.
 
 ---
 
 ### 5.6 vw_revenue_by_segment.sql
-
-**Purpose:**  
-Break down total revenue generated by each engagement segment.
-
-**Why it matters:**  
-It provides a clean comparison of low-engagement vs high-engagement users.  
-This view also supports my monetization insights in Power BI.
+Breaks down total revenue by engagement segment.  
+Helps compare low, mid, and high groups in a simple and consistent way.
 
 ---
 
@@ -234,278 +178,213 @@ This view also supports my monetization insights in Power BI.
 
 ---
 
-# Dashboard Page 1 – Overall Activity & Engagement Trends  
-**(firstpage.png)**
-
+## Dashboard Page 1 – Overall Activity & Engagement Trends  
 ![Global scale & natural decay](./images/firstpage.png)
 
 ### What This Page Shows
+This page gives a general view of the player base and their activity:
 
-This page gives a high-level view of the entire player base and core activity metrics.  
-It includes:
+- **7M users**
+- **13M sessions**
+- **1.08M total revenue**
+- **146K ad revenue**
+- **1.85K seconds (≈30 minutes) avg session duration**
 
-- **7M Total Users**
-- **146K Total Ad Revenue**
-- **1.08M Total Revenue (IAP + Ads)**
-- **13M Total Sessions**
-- **1.85K Avg Session Duration (seconds)**
-
-And two key trend lines:
+It also shows two main trends:
 
 - **DAU over time**
 - **Total sessions over time**
 
 ---
 
-### Insights from the Trends
-
-1. **DAU declines steadily from ~290K to ~210K**  
-   The downward trend is smooth and without sharp drops. This suggests natural engagement decay rather than a system issue.
-
-2. **Total sessions follow the same decline pattern**  
-   Sessions drop from ~500K to ~380K.  
-   This parallel movement means the decline comes from churn, not from changes in per-user behavior.
-
-3. **The engagement curve is healthy for a casual F2P title**  
-   The decay is gradual, not abrupt.  
-   No indicators of server issues or balance-breaking events.
-
-4. **Session duration remains stable**  
-   The 1.85K-second average shows that active players keep playing meaningfully long sessions even as DAU shrinks.
+### Key Insights
+- **DAU and sessions decrease slowly**, which points to normal fluctuations.   
+- The overall pattern fits a **typical casual mobile game** stable behavior with no sudden drops.
 
 ---
 
-### Interpretation
-
-This page establishes the baseline:  
-The game has strong volume, predictable natural decay, and consistent player behavior.  
-It sets the foundation for deeper segmentation in the following pages.
+### Why This Matters
+This page shows the general health of the game.  
+The smooth decline with no sudden spikes or crashes create a solid base for the rest of the analysis, especially for understanding segments and revenue in the next pages.
 
 ---
 
-# Dashboard Page 2 – First-Day Engagement Segments  
-**(secondpage.png)**
-
+## Dashboard Page 2 – First-Day Engagement Segments  
 ![Who the players are](./images/secondpage.png)
 
 ### What This Page Shows
+This page groups players into **low**, **mid**, and **high** engagement segments using their Day-1 session count and playtime.  
+It compares these groups by:
 
-This page breaks users into **low**, **mid**, and **high** engagement segments based on first-day session count and duration. It focuses on **Day 1 behavior**, showing comparisons in:
-
-- Total users  
-- Average first-day duration  
-- Average first-day sessions  
-- First-day victories  
-- Total revenue (IAP + Ads)  
-
----
-
-### Insights (Directly From Your Graphs)
-
-#### 1. Segment Size Is Extremely Skewed
-
-- **Low segment = 96.9%** of players  
-- **Mid segment = tiny minority**  
-- **High segment = even smaller**
-
-This imbalance shows massive opportunity in onboarding.  
-Even a small upward shift in the low segment increases total revenue significantly.
+- Player count  
+- First-day duration  
+- First-day sessions  
+- Day-1 victories  
+- Total revenue (IAP + Ads)
 
 ---
 
-#### 2. Engagement Differences Are Dramatic
+### Key Insights
 
-- High segment users spend **4–6× longer** on Day 1  
-- They play **3–4× more sessions**  
-- They collectively win **10M+ Day-1 matches**
+#### 1. Segment Size Is Very Uneven
+- **Low = 96.9%** of all players  
+- Mid and high groups are very small  
+- Small improvements in the low group can affect the whole game
 
-This proves early engagement predicts long-term value strongly.
+#### 2. Engagement Gaps Are Large
+- High players play **much longer** and **much more** on Day-1
+- Total first-day victories are highest in the low segment simply because this group is the largest
+- Strong early activity usually turns into stronger long-term value
 
----
+#### 3. Revenue: low leads in total, high leads per user
+- Low group generates the highest total revenue because it covers ~97% of players
+- High group brings the **highest revenue per user**  
+- Ad revenue shows the same structure: volume from low, efficiency from high 
+- A small high-engagement group is very valuable on a per-user basis, but most money still comes from the large low segment
 
-#### 3. Monetization Concentrates at the Top
-
-- **Low segment** generates the most *total IAP revenue* simply due to scale  
-- **High segment** generates the *most revenue per user* despite small size  
-- Ad revenue shows the same pattern:  
-  Higher engagement → more stability → more impressions  
-
-→ Classic F2P pattern: *a small, highly engaged group drives most real value*
-
----
-
-#### 4. Mid Segment Signals the Biggest Opportunity
-
-Mid users play multiple sessions but not as intensely as high users.  
-They show:
-
-- Solid session duration  
-- Active gameplay  
-- Non-trivial revenue  
-
-→ This group should be targeted for retention design and personalized nudges.
+#### 4. Mid Players Are the Main Opportunity
+- They have solid activity but not at the “high” level  
+- They respond well to small improvements  
+- Good target for retention and early-game tuning
 
 ---
 
-### Interpretation
+### Why This Matters
+Day-1 behavior is one of the clearest signals for future performance.  
+This page shows which groups are stable, which ones can grow, and where early-game improvements will have the biggest impact:
 
-This page reveals the structural behavior of the player base.  
-**Day 1 behavior fully predicts long-term performance.**  
-Low users = onboarding opportunity.  
-High users = core gamers.  
-Mid users = biggest leverage for retention.
+- **High** players stay valuable  
+- **Mid** players can improve with better support  
+- **Low** players show signs of onboarding friction  
+
+These insights guide where to focus retention and early-game design efforts.
 
 ---
 
-# Dashboard Page 3 – Session Fatigue & Segment Behavior Over Time  
-**(thirdpage.png)**
-
+## Dashboard Page 3 – Session Fatigue & Segment Behavior Over Time  
 ![How they behave over time](./images/thirdpage.png)
 
 ### What This Page Shows
-
-This page compares how session duration and total sessions evolve for each segment over time.
-
-Two charts:
-
-1. **Average session duration over time** (high vs mid vs low)  
-2. **Total sessions over time** (high vs mid vs low)
-
-Each chart is annotated with decay and stability insights.
+This page shows how **session duration** and **total sessions** change over time for low, mid, and high engagement groups.
 
 ---
 
-### Insights (Directly From Your Graphs)
+### Key Insights
 
-#### 1. High Segment Sustains the Longest Sessions
+#### 1. High Segment Stays Strong
+- 2–3× longer sessions  
+- Slow decline  
+- Most consistent long-term group
 
-- 2–3× longer session durations  
-- Slow and controlled decay  
-- Stability makes them the best base for long-term retention  
+#### 2. Mid Segment Drops Quickly
+- Early and noticeable decline  
+- Very sensitive to pacing  
+- Best target for retention work
 
----
+#### 3. Low Segment Shows Weak Engagement
+- Short, flat session duration  
+- No real improvement  
+- Points to onboarding issues
 
-#### 2. Mid Segment Shows Meaningful Decay
-
-- Sharp activity drop after early days  
-- Fluctuating and downward trend  
-- Most sensitive to friction and pacing  
-
-→ If one segment needs optimization, **it's mid**.
-
----
-
-#### 3. Low Segment Is Flat and Weak
-
-- No improvement in session duration  
-- Flat activity line  
-- Onboarding issue, not gameplay issue  
+#### 4. Total Sessions Follow the Same Trend
+- Low = high totals only because of size  
+- Mid = early drop  
+- High = steady and predictable
 
 ---
 
-#### 4. Total Sessions Mirror the Same Pattern
+### Why This Matters
+This page helps identify where engagement weakens:
 
-- Low: high total sessions due to massive size  
-- Mid: noticeable early decay  
-- High: stable loops with predictable dips  
+- High players keep playing  
+- Mid players lose interest early  
+- Low players never fully engage  
 
-High users show the strongest emotional commitment.
-
----
-
-### Interpretation
-
-All segments experience fatigue but to different degrees.  
-Mid segment is the best target for retention improvements.  
-High segment is stable; low segment needs onboarding fixes.
+These patterns guide where to focus early-game improvements and retention efforts.
 
 ---
 
 ## 7. Methodology
 
-My workflow combines **Python**, **SQL**, and **Power BI** as a structured pipeline.  
-Each tool plays a specific role and keeps the analysis reproducible.
+This project uses **Python**, **SQL**, and **Power BI** together in a simple and clear workflow.  
+Each step has its own role and keeps the analysis easy to manage.
 
 ---
 
-### 1. Python – Data Cleaning, Feature Engineering, and Early Validation
+### 1. Python – Cleaning, Basic Features, Early Checks
 
-I used three notebooks:
+I worked with three notebooks:
 
 - `01_data_cleaning.ipynb`  
-  Cleaned column types, fixed missing revenue, validated gameplay metrics, removed corrupt rows, and exported a consistent dataset.
+  Fixed types, handled missing revenue, removed invalid rows, and prepared a clean dataset.
 
 - `02_feature_engineering.ipynb`  
-  Created features such as engagement segments, total revenue, Day-1 flags, session-per-match ratios, and exported an enriched dataset for SQL.
+  Created key fields such as engagement segments, total revenue, and Day-1 activity flags.
 
 - `03_exploratory_analysis.ipynb`  
-  Produced quick distribution plots, checked session-duration patterns, looked at revenue histograms and DAU patterns before moving into Power BI.
+  Generated quick plots to check session patterns, activity trends, and early revenue signals.
 
-Python ensured the dataset was **reliable** before it entered the SQL layer.
-
----
-
-### 2. SQL – Modular Aggregation & Segment Logic
-
-Each SQL view performs one job:  
-country revenue, first-day conversion patterns, engagement segmentation, session fatigue trends, and segment-based monetization.
-
-Python outputs fed directly into these views (particularly engineered columns like `engagement_segment` and `total_revenue`).
-
-All SQL files are included under `/task2/sql`.
+Python made sure the data was reliable before moving into SQL.
 
 ---
 
-### 3. Power BI – Visualization & Final Insight Layer
+### 2. SQL – Structured Views for Behavior and Revenue
 
-I built three dashboard pages:
+Each view focuses on one task:  
+country revenue, first-day activity, engagement segments, session fatigue, and revenue by segment.
 
-1. **Overall DAU + Total Sessions + Global Metrics**  
-2. **First-Day Engagement Segments Analysis**  
-3. **Session Fatigue & Segment Behavior Over Time**
+The enriched Python output feeds directly into these views.  
+All SQL files are stored in `/task2/sql`.
 
-All visuals are exported inside `/task2/images`, matching the dashboards in `task2_dashboard.pbix`.
+---
 
-Power BI uses the SQL views as its source, which themselves rely on Python-cleaned data.
+### 3. Power BI – Final Visual Layer
+
+I created three dashboard pages:
+
+1. Overall activity and global metrics  
+2. First-day engagement segments  
+3. Session fatigue and segment behavior  
+
+All exports are in `/task2/images`, matching the Power BI file.
+
+Power BI reads the SQL views, which are built on top of the cleaned Python dataset.
 
 ---
 
 ### 4. End-to-End Workflow Summary
 
-The analysis pipeline works in this order:
+1. Python prepares and checks the data  
+2. SQL organizes it into clear views  
+3. Power BI visualizes the main patterns  
+4. The README explains the overall approach  
 
-1. **Python cleans the data** → generates the enriched dataset.  
-2. **SQL reads the enriched dataset** → computes segment rules, revenue metrics, daily trends.  
-3. **Power BI consumes the SQL views** → builds visual insights and trends.  
-4. **README documents** the methodology, assumptions, and findings.
-
-This separation avoids duplication, makes each component reusable, and follows a realistic analytics workflow.
+This structure keeps the analysis simple, reusable, and easy to understand.
 
 ---
 
 ## 8. Assumptions
 
 - Missing revenue is treated as zero.  
-- Day-based retention and activity reflect engagement accurately.  
-- No seasonality or external effects included.  
-- User segments remain stable throughout the analysis period.  
-- Revenue is assumed to be fully attributed to the day it is recorded.
+- Day-based activity is used as the main signal for engagement.  
+- No seasonality or external events were considered.  
+- User segments stay the same during the analysis period.  
+- Revenue is counted on the day it appears in the data.
 
 ---
 
 ## 9. Key Findings
 
-1. First-day engagement is the strongest predictor of long-term value.  
-2. High-engagement segments dominate both retention and monetization.  
-3. Session fatigue affects all players and should guide content pacing.  
-4. Revenue by country shows clear, actionable differences.  
-5. Building user segments opens the door for deeper behavioral modeling.  
+1. Day-1 activity is the clearest indicator of long-term value.  
+2. High-engagement players lead retention and revenue per user, while the low segment generates the highest total revenue due to its size.
+3. All groups show session fatigue, which should guide pacing decisions.  
+4. Revenue differs strongly by country and is easy to act on.  
+5. Simple segments help explain behavior and support future analysis.
 
 ---
 
 ## 10. Final Notes
 
-Task 2 is fully reproducible.  
-SQL views provide clean, modular transforms.  
-Power BI dashboards bring the results together.  
-All insights are based directly on the available data, without external assumptions.
+Task 2 can be repeated end-to-end.  
+SQL views keep the logic organized, and Power BI shows the main patterns clearly.  
+All insights come directly from the dataset, without extra assumptions.
