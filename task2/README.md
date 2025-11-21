@@ -112,7 +112,7 @@ This supported the segment structure used later.
 
 **a) Session Fatigue**  
 ![Average Session Duration](./images/avgsessionduration.png)  
-Session duration drops over time for all segments. High segment stays the most stable.
+Session duration drops over time for all segments. Low segment stays the most stable.
 
 **b) Country Revenue**  
 ![Heatmap](./images/heatmap.png)  
